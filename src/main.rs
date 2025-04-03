@@ -1,4 +1,3 @@
-use std::{clone, f32::consts::E, thread::sleep, time::Duration};
 
 use piston_window::*;
 use rand::{rng, Rng};
@@ -42,9 +41,13 @@ impl Game {
 }
 
 impl Game {
-    fn handle_input(&mut self, key: Event) {
-        if let Some(Button::Keyboard(Key::W)) = key.press_args() {
-            self.snake.direction = Direction::Right;
+    fn handle_input(&mut self, key: Key) {
+        match key {
+            Key::U => self.snake.direction = Direction::Up,
+            Key::D => self.snake.direction = Direction::Right,
+            Key::S => self.snake.direction = Direction::Down,
+            Key::A => self.snake.direction = Direction::Left,
+            _ => {},
         }
         println!("{:?}", key)
     }
@@ -60,7 +63,7 @@ impl Game {
             Direction::Right => head.0 += 1,
             Direction::Up => head.1 -= 1
         }
-        println!("{:?}", head)
+        // println!("{:?}", head)
     }
 }
 fn main() {
@@ -79,7 +82,7 @@ fn main() {
     while let Some(e) = _window.next() {
 
         if let Some(Button::Keyboard(_key)) = e.press_args() {
-            _game.handle_input(e);
+            _game.handle_input(_key);
         }
         _game.move_forward();
     }
