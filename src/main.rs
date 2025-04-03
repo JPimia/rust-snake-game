@@ -56,14 +56,14 @@ impl Game {
 impl Game {
     fn move_forward(&mut self) {
         let mut head = self.snake.body[0];
-
+        
+        println!("{:?}", head);
         match self.snake.direction {
             Direction::Down => head.1 += 1,
             Direction::Left => head.0 -= 1,
             Direction::Right => head.0 += 1,
             Direction::Up => head.1 -= 1
         }
-        // println!("{:?}", head)
     }
 }
 fn main() {
@@ -79,15 +79,26 @@ fn main() {
         .build()
         .unwrap();
 
+    let mut last_update = std::time::Instant::now();
+    let update_interval = std::time::Duration::from_millis(200);
+
+    println!("{:?}", update_interval);
+
     while let Some(e) = _window.next() {
 
         if let Some(Button::Keyboard(_key)) = e.press_args() {
+            println!("moi");
             _game.handle_input(_key);
         }
-        _game.move_forward();
+
+        if last_update.elapsed() >= update_interval || last_update.elapsed() <= update_interval {
+            _game.move_forward();
+            last_update = std::time::Instant::now();
+        }
+
+        render(&mut _window, &mut _game);
     }
 
-    render(&mut _window, &mut _game);
 }
 
 fn render(_window: &mut PistonWindow, _game: &mut Game) {
