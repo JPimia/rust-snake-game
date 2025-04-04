@@ -43,7 +43,7 @@ impl Game {
 impl Game {
     fn handle_input(&mut self, key: Key) {
         match key {
-            Key::U => self.snake.direction = Direction::Up,
+            Key::W => self.snake.direction = Direction::Up,
             Key::D => self.snake.direction = Direction::Right,
             Key::S => self.snake.direction = Direction::Down,
             Key::A => self.snake.direction = Direction::Left,
@@ -53,17 +53,19 @@ impl Game {
     }
 }
 
-impl Game {
+impl Snake {
     fn move_forward(&mut self) {
-        let mut head = self.snake.body[0];
+        let mut head = self.body[0];
         
         println!("{:?}", head);
-        match self.snake.direction {
+        match self.direction {
+            Direction::Up => head.1 -= 1,
             Direction::Down => head.1 += 1,
-            Direction::Left => head.0 -= 1,
             Direction::Right => head.0 += 1,
-            Direction::Up => head.1 -= 1
+            Direction::Left => head.0 -= 1,
         }
+        self.body.insert(0, head);
+        self.body.pop();
     }
 }
 fn main() {
@@ -91,40 +93,39 @@ fn main() {
             _game.handle_input(_key);
         }
 
-        if last_update.elapsed() >= update_interval || last_update.elapsed() <= update_interval {
-            _game.move_forward();
+        if last_update.elapsed() >= update_interval {
+            println!("moi");
+            _game.snake.move_forward();
             last_update = std::time::Instant::now();
         }
 
-        render(&mut _window, &mut _game);
+        render(&mut _window, &e, &mut _game);
     }
 
 }
 
-fn render(_window: &mut PistonWindow, _game: &mut Game) {
-    while let Some(e) = &_window.next() {
-        _window.draw_2d(e, |c, g, _| {
+fn render(_window: &mut PistonWindow, _event: &Event, _game: &mut Game) {
+    _window.draw_2d(_event, |c, g, _| {
+        clear([0.5, 0.5, 0.5, 1.0], g);
+        // draw snake
+        for (x, y) in &_game.snake.body {
+            // println!("MATO");
+            rectangle([1.0, 0.0, 0.0, 1.0], // red
+                [*x as f64 * 20.0, *y as f64 * 20.0, 20.0, 20.0], // rectangle
+                c.transform,
+                g,
+            );
+        }
 
-            // draw snake
-            for (x, y) in &_game.snake.body {
-                // println!("MATO");
-                rectangle([1.0, 0.0, 0.0, 1.0], // red
-                    [*x as f64 * 20.0, *y as f64 * 20.0, 20.0, 20.0], // rectangle
-                    c.transform,
-                    g,
-                );
-            }
-
-            // draw food
-            for (x, y) in &_game.food {
-                // println!("FOOD");
-                rectangle([0.0, 1.0, 0.0, 1.0], // red
-                    [*x as f64 * 20.0, *y as f64 * 20.0, 20.0, 20.0], // rectangle
-                    c.transform,
-                    g,
-                );
-            }
-            clear([0.5, 0.5, 0.5, 1.0], g);
-        });
-    }
+        // draw food
+        for (x, y) in &_game.food {
+            // println!("FOOD");
+            rectangle([0.0, 1.0, 0.0, 1.0], // red
+                [*x as f64 * 20.0, *y as f64 * 20.0, 20.0, 20.0], // rectangle
+                c.transform,
+                g,
+            );
+        }
+    });
+    
 }
