@@ -1,10 +1,7 @@
-
-use std::process::exit;
-use std::cell::Cell;
-
 use piston_window::*;
-use rand::{rng, Rng};
+use rand::{random_range, rng, Rng};
 
+#[derive(PartialEq)]
 enum Direction {
     Up,
     Down,
@@ -46,10 +43,10 @@ impl Game {
 impl Game {
     fn handle_input(&mut self, key: Key) {
         match key {
-            Key::W => self.snake.direction = Direction::Up,
-            Key::D => self.snake.direction = Direction::Right,
-            Key::S => self.snake.direction = Direction::Down,
-            Key::A => self.snake.direction = Direction::Left,
+            Key::W => if self.snake.direction != Direction::Down { self.snake.direction = Direction::Up },
+            Key::D => if self.snake.direction != Direction::Left { self.snake.direction = Direction::Right },
+            Key::S => if self.snake.direction != Direction::Up { self.snake.direction = Direction::Down },
+            Key::A => if self.snake.direction != Direction::Right { self.snake.direction = Direction::Left },
             _ => {},
         }
         println!("{:?}", key)
@@ -59,12 +56,19 @@ impl Game {
 impl Game {
     fn check_collusion(&mut self) {
         let game_over = self.game_over;
+        let rng = rng().random_range(0..19);
         let (x, y) = self.snake.body[0];
+        // let food: Vec<(i32,i32)> = vec![(rng.random_range(0..19), rng.random_range(0..19))];
 
         if (x, y) < (0, 0) || (x, y) > (19, 19) || (y, x) < (0, 0) || (y, x) > (19, 19){
             self.game_over = true;
         }
-        println!("Game over: {}", game_over)
+        if (x, y) == self.food[0] {
+            self.food.pop();
+            self.food.insert(0, (rng, rng));
+            self.score += 1;
+        }
+        println!("Game over: {}, score: {}", game_over, self.score)
     }
 }
 
