@@ -1,4 +1,7 @@
 
+use std::process::exit;
+use std::cell::Cell;
+
 use piston_window::*;
 use rand::{rng, Rng};
 
@@ -53,6 +56,18 @@ impl Game {
     }
 }
 
+impl Game {
+    fn check_collusion(&mut self) {
+        let game_over = self.game_over;
+        let (x, y) = self.snake.body[0];
+
+        if (x, y) < (0, 0) || (x, y) > (19, 19) || (y, x) < (0, 0) || (y, x) > (19, 19){
+            self.game_over = true;
+        }
+        println!("Game over: {}", game_over)
+    }
+}
+
 impl Snake {
     fn move_forward(&mut self) {
         let mut head = self.body[0];
@@ -88,6 +103,11 @@ fn main() {
 
     while let Some(e) = _window.next() {
 
+        if _game.game_over {
+            println!("Moroojesta kuolit!");
+            break;
+        }
+
         if let Some(Button::Keyboard(_key)) = e.press_args() {
             println!("moi");
             _game.handle_input(_key);
@@ -96,6 +116,7 @@ fn main() {
         if last_update.elapsed() >= update_interval {
             println!("moi");
             _game.snake.move_forward();
+            _game.check_collusion();
             last_update = std::time::Instant::now();
         }
 
