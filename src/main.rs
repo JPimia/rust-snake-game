@@ -1,5 +1,5 @@
 use piston_window::*;
-use rand::{random_range, rng, Rng};
+use rand::{rng, Rng};
 
 #[derive(PartialEq)]
 enum Direction {
@@ -25,13 +25,13 @@ struct Game {
 
 impl Game {
     fn new(width: i32, height: i32) -> Self {
-        let mut rng = rng();
+        let rng = rng().random_range(0..width);
         Game {
             snake: Snake {
                 body: vec![(width / 2, height / 2)],
                 direction: Direction::Right,
         },
-            food: vec![(rng.random_range(0..width),rng.random_range(0..height))],
+            food: vec![(rng, rng)],
             width,
             height,
             score: 0,
@@ -56,17 +56,20 @@ impl Game {
 impl Game {
     fn check_collusion(&mut self) {
         let game_over = self.game_over;
-        let rng = rng().random_range(0..19);
         let (x, y) = self.snake.body[0];
-        // let food: Vec<(i32,i32)> = vec![(rng.random_range(0..19), rng.random_range(0..19))];
+        let last_pos = self.snake.body[0];
+        
 
         if (x, y) < (0, 0) || (x, y) > (19, 19) || (y, x) < (0, 0) || (y, x) > (19, 19){
             self.game_over = true;
         }
         if (x, y) == self.food[0] {
             self.food.pop();
+            let rng = rng().random_range(0..19);
             self.food.insert(0, (rng, rng));
+            self.snake.body.insert(0, last_pos);
             self.score += 1;
+            println!("{:?}", self.food)
         }
         println!("Game over: {}, score: {}", game_over, self.score)
     }
@@ -79,7 +82,7 @@ impl Snake {
         println!("{:?}", head);
         match self.direction {
             Direction::Up => head.1 -= 1,
-            Direction::Down => head.1 += 1,
+            Direction::Down => head.1 += 1, 
             Direction::Right => head.0 += 1,
             Direction::Left => head.0 -= 1,
         }
@@ -101,7 +104,7 @@ fn main() {
         .unwrap();
 
     let mut last_update = std::time::Instant::now();
-    let update_interval = std::time::Duration::from_millis(200);
+    let update_interval = std::time::Duration::from_millis(150);
 
     println!("{:?}", update_interval);
 
