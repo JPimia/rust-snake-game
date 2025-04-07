@@ -1,15 +1,15 @@
 use piston_window::types::Color;
 
 // Colors
-pub const BACKGROUND_COLOR: Color = [0.2, 0.2, 0.2, 1.0];
+pub const BACKGROUND_COLOR: Color = [0.2, 0.2, 0.2, 1.0]; // Dark gray
 pub const SNAKE_COLOR: Color = [1.0, 0.0, 0.0, 1.0];  // Red
 pub const FOOD_COLOR: Color = [0.0, 1.0, 0.0, 1.0];  // Green
-pub const GRID_COLOR: Color = [0.3, 0.3, 0.3, 1.0];
+pub const GRID_COLOR: Color = [0.3, 0.3, 0.3, 1.0]; // Gray
 pub const TEXT_COLOR: Color = [1.0, 1.0, 1.0, 1.0];  // White
-pub const SCORE_BG_COLOR: Color = [0.1, 0.1, 0.1, 0.8];
+pub const SCORE_BG_COLOR: Color = [0.1, 0.1, 0.1, 0.8]; // Dark gray
 
 // Game settings
-pub const GRID_SIZE: f64 = 20.0;
+pub const GRID_SIZE: f64 = 20.0; 
 pub const TEXT_SIZE: u32 = 18;
 pub const UPDATE_INTERVAL_MS: u64 = 75;
 
