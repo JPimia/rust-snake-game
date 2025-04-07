@@ -2,7 +2,7 @@
 
 A classic Snake game implemented in Rust using the Piston game engine.
 
-![Snake Game Screenshot](screenshot.png)
+![Snake Game Demo](assets/rust-snake.gif)
 
 ## Features
 
