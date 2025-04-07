@@ -55,23 +55,62 @@ impl Game {
 
 impl Game {
     fn check_collusion(&mut self) {
-        let game_over = self.game_over;
-        let (x, y) = self.snake.body[0];
-        let last_pos = self.snake.body[0];
-        
+        let _game_over = self.game_over;
+        let head = self.snake.body[0];
 
-        if (x, y) < (0, 0) || (x, y) > (19, 19) || (y, x) < (0, 0) || (y, x) > (19, 19){
+        if head.0 < 0 || head.1 > 19 || head.0 > 19 || head.1 < 0 {
+            println!("OKJSSADKSADOKASD");
             self.game_over = true;
         }
-        if (x, y) == self.food[0] {
-            self.food.pop();
-            let rng = rng().random_range(0..19);
-            self.food.insert(0, (rng, rng));
-            self.snake.body.insert(0, last_pos);
-            self.score += 1;
-            println!("{:?}", self.food)
+        if self.snake.body.iter().skip(1).any(|segment| segment == &head) {
+            self.game_over = true;
         }
-        println!("Game over: {}, score: {}", game_over, self.score)
+        // println!("Game over: {}, score: {}", game_over, self.score)
+    }
+}
+
+impl Game {
+    fn spawn_food(&mut self) {
+        let &last_pos = self.snake.body.last().unwrap();
+        let head = self.snake.body[0];
+        let (x, y) = last_pos;
+
+        if self.food[0] == head {
+            loop { 
+                let new_food = (rng().random_range(0..self.width), rng().random_range(0..self.height));
+                if !self.snake.body.iter().any(|segment| segment == &new_food) {
+                    println!("ASDASD");
+                    self.food.pop();
+                    self.food.push(new_food);
+
+                    let len = self.snake.body.len();
+                    if len >= 2 {
+                        // get last and second to last segments
+                        let tail = self.snake.body[len - 1];
+                        let previous_seg = self.snake.body[len - 2];
+
+                        // calculate direction from second to last segment to tail
+                        let dx = tail.0 - previous_seg.0;
+                        let dy = tail.1 - previous_seg.1;
+
+                        // add new segment to opposite direction from second to last segment
+                        let new_seg = (tail.0 + dx, tail.1 + dy);
+                        self.snake.body.push(new_seg);
+                    } else {
+                        // if snake has only head use current direction
+                        match self.snake.direction {
+                            Direction::Up => self.snake.body.push((x, y + 1)),
+                            Direction::Down => self.snake.body.push((x, y - 1)),
+                            Direction::Right => self.snake.body.push((x - 1, y)),
+                            Direction::Left => self.snake.body.push((x + 1, y)),
+                        }
+                    }
+                    self.score += 1;
+                    break;
+                }
+            }
+        }
+        println!("score: {}", self.score)
     }
 }
 
@@ -121,8 +160,8 @@ fn main() {
         }
 
         if last_update.elapsed() >= update_interval {
-            println!("moi");
             _game.snake.move_forward();
+            _game.spawn_food();
             _game.check_collusion();
             last_update = std::time::Instant::now();
         }
