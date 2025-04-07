@@ -58,6 +58,7 @@ fn render(_window: &mut PistonWindow, _event: &Event, _game: &mut Game, _glyphs:
     _window.draw_2d(_event, |c, g, device| {
         clear(BACKGROUND_COLOR, g);
         
+        // Score background rectangle
         rectangle(
             SCORE_BG_COLOR,
             [10.0, SCORE_POS_Y - 30.0, SCORE_BG_WIDTH, SCORE_BG_HEIGHT],
@@ -65,6 +66,7 @@ fn render(_window: &mut PistonWindow, _event: &Event, _game: &mut Game, _glyphs:
             g
         );
 
+        // Highscore background rectangle
         rectangle(
             SCORE_BG_COLOR,
             [10.0, HIGHSCORE_POS_Y - 30.0, SCORE_BG_WIDTH, SCORE_BG_HEIGHT],
@@ -72,6 +74,7 @@ fn render(_window: &mut PistonWindow, _event: &Event, _game: &mut Game, _glyphs:
             g
         );
         
+        // Draw score
         let score_text = format!("Score: {}", _game.score);
         if let Err(e) = text::Text::new_color(TEXT_COLOR, TEXT_SIZE)
             .draw(&score_text, _glyphs, &c.draw_state, c.transform.trans(SCORE_POS_X, SCORE_POS_Y), g)
@@ -79,20 +82,22 @@ fn render(_window: &mut PistonWindow, _event: &Event, _game: &mut Game, _glyphs:
             eprintln!("Failed to draw text: {:?}", e);
         }
 
-        let highscore = unsafe { HIGHSCORE };
-        let score_text = format!("Highscore: {}", highscore);
+        // Draw highscore
+        let score_text = format!("Highscore: {}", unsafe { HIGHSCORE });
         if let Err(e) = text::Text::new_color(TEXT_COLOR, TEXT_SIZE)
             .draw(&score_text, _glyphs, &c.draw_state, c.transform.trans(SCORE_POS_X, HIGHSCORE_POS_Y), g)
         {
             eprintln!("Failed to draw text: {:?}", e);
         }
         
+        // Draw play area
         rectangle(GRID_COLOR,
             [1.0, 1.0 * 2.0, _game.height as f64 * GRID_SIZE, _game.height as f64 * GRID_SIZE],
             c.transform,
             g
         );
-
+        
+        // Draw snake
         for (x, y) in &_game.snake.body {
             rectangle(SNAKE_COLOR,
                 [*x as f64 * GRID_SIZE, *y as f64 * GRID_SIZE, GRID_SIZE, GRID_SIZE],
@@ -101,6 +106,7 @@ fn render(_window: &mut PistonWindow, _event: &Event, _game: &mut Game, _glyphs:
             );
         }
 
+        // Draw food
         for (x, y) in &_game.food {
             rectangle(FOOD_COLOR,
                 [*x as f64 * GRID_SIZE, *y as f64 * GRID_SIZE, GRID_SIZE, GRID_SIZE],
