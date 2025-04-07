@@ -11,7 +11,7 @@ pub const SCORE_BG_COLOR: Color = [0.1, 0.1, 0.1, 0.8];
 // Game settings
 pub const GRID_SIZE: f64 = 20.0;
 pub const TEXT_SIZE: u32 = 18;
-pub const UPDATE_INTERVAL_MS: u64 = 150;
+pub const UPDATE_INTERVAL_MS: u64 = 75;
 
 // Window settings
 pub const WINDOW_WIDTH: f64 = 512.0;
