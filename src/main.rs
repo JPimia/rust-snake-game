@@ -5,7 +5,6 @@ use snake_game::game::Game;
 use snake_game::game::HIGHSCORE;
 use snake_game::constants::*;
 
-
 fn main() {
     let (width, height) = (GRID_WIDTH, GRID_HEIGHT);
 
@@ -30,7 +29,6 @@ fn main() {
 
     while let Some(e) = _window.next() {
         if _game.game_over {
-            println!("Moroojesta kuolit!");
             unsafe {
                 if _game.score > HIGHSCORE {
                     HIGHSCORE = _game.score;
@@ -49,7 +47,6 @@ fn main() {
             _game.check_collusion();
             last_update = std::time::Instant::now();
         }
-        
         render(&mut _window, &e, &mut _game, &mut _glyphs);
     }
 }
