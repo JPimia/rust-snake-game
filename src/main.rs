@@ -1,5 +1,9 @@
 use piston_window::*;
+use piston_window::Glyphs;
+use piston_window::TextureSettings;
 use rand::{rng, Rng};
+
+static mut HIGHSCORE: i32 = 0;
 
 #[derive(PartialEq)]
 enum Direction {
@@ -14,12 +18,13 @@ struct Snake {
     direction: Direction,
 }
 
-struct Game {
+pub struct Game {
     snake: Snake,
     food: Vec<(i32,i32)>,
     width: i32,
     height: i32,
     score: i32,
+    pub highscore: i32,
     game_over: bool
 }
 
@@ -35,6 +40,7 @@ impl Game {
             width,
             height,
             score: 0,
+            highscore: 0,
             game_over: false
         }
     }
@@ -49,7 +55,6 @@ impl Game {
             Key::A => if self.snake.direction != Direction::Right { self.snake.direction = Direction::Left },
             _ => {},
         }
-        println!("{:?}", key)
     }
 }
 
@@ -58,8 +63,7 @@ impl Game {
         let _game_over = self.game_over;
         let head = self.snake.body[0];
 
-        if head.0 < 0 || head.1 > 19 || head.0 > 19 || head.1 < 0 {
-            println!("OKJSSADKSADOKASD");
+        if head.0 < 0 || head.1 > self.width - 1 || head.0 > self.height - 1 || head.1 < 0 {
             self.game_over = true;
         }
         if self.snake.body.iter().skip(1).any(|segment| segment == &head) {
@@ -79,7 +83,6 @@ impl Game {
             loop { 
                 let new_food = (rng().random_range(0..self.width), rng().random_range(0..self.height));
                 if !self.snake.body.iter().any(|segment| segment == &new_food) {
-                    println!("ASDASD");
                     self.food.pop();
                     self.food.push(new_food);
 
@@ -130,6 +133,7 @@ impl Snake {
     }
 }
 fn main() {
+    let (_window_width, window_height) = (512, 512);
     // grid size
     let (width, height) = (20, 20);
 
@@ -137,10 +141,19 @@ fn main() {
     let mut _game = Game::new(width, height);
 
     // create window
-    let mut _window: PistonWindow = WindowSettings::new("Snake Game", [width as u32 * 20, height as u32 * 20])
-        .exit_on_esc(true)
-        .build()
-        .unwrap();
+    let mut _window: PistonWindow = WindowSettings::new("Snake Game", [width as f64 * 20.0, window_height as f64])
+    .exit_on_esc(true)
+    .build()
+    .unwrap();
+
+    let mut _glyphs = Glyphs::new(
+        "assets/FiraSans-Regular.ttf",
+        _window.create_texture_context(),
+        TextureSettings::new(),
+    ).unwrap_or_else(|e| {
+        println!("Error: {}", e);
+        panic!("Failed to create glyphs");
+    });
 
     let mut last_update = std::time::Instant::now();
     let update_interval = std::time::Duration::from_millis(150);
@@ -151,7 +164,12 @@ fn main() {
 
         if _game.game_over {
             println!("Moroojesta kuolit!");
-            break;
+            unsafe {
+                if _game.score > HIGHSCORE {
+                    HIGHSCORE = _game.score;
+                }
+            }
+            _game = Game::new(width, height);
         }
 
         if let Some(Button::Keyboard(_key)) = e.press_args() {
@@ -165,16 +183,51 @@ fn main() {
             _game.check_collusion();
             last_update = std::time::Instant::now();
         }
-
-        render(&mut _window, &e, &mut _game);
+        
+        render(&mut _window, &e, &mut _game, &mut _glyphs);
     }
 
 }
 
-fn render(_window: &mut PistonWindow, _event: &Event, _game: &mut Game) {
-    _window.draw_2d(_event, |c, g, _| {
-        clear([0.5, 0.5, 0.5, 1.0], g);
-        // draw snake
+fn render(_window: &mut PistonWindow, _event: &Event, _game: &mut Game, _glyphs: &mut Glyphs) {
+    _window.draw_2d(_event, |c, g, device| {
+        clear([0.2, 0.2, 0.2, 1.0], g);
+        // Draw background rectangle for score
+        rectangle(
+            [0.1, 0.1, 0.1, 0.8],
+            [10.0, 410.0, 200.0, 40.0],
+            c.transform,
+            g
+        );
+
+        // draw background for highscore
+        rectangle(
+            [0.1, 0.1, 0.1, 0.8],
+            [10.0, 460.0, 200.0, 40.0],
+            c.transform,
+            g
+        );
+        
+        // Draw score text
+        let score_text = format!("Score: {}", _game.score);
+        if let Err(e) = text::Text::new_color([1.0, 1.0, 1.0, 1.0], 18)
+            .draw(&score_text, _glyphs, &c.draw_state, c.transform.trans(20.0, 440.0), g)
+        {
+            eprintln!("Failed to draw text: {:?}", e);
+        }
+
+        let score_text = format!("Highscore: {}", unsafe { HIGHSCORE });
+        if let Err(e) = text::Text::new_color([1.0, 1.0, 1.0, 1.0], 18)
+            .draw(&score_text, _glyphs, &c.draw_state, c.transform.trans(20.0, 490.0), g)
+        {
+            eprintln!("Failed to draw text: {:?}", e);
+        }
+        
+        rectangle([0.3, 0.3, 0.3, 1.0],
+            [1.0, 1.0 * 2.0, _game.height as f64 * 20.0, _game.height as f64 * 20.0],
+            c.transform,
+            g
+        );
         for (x, y) in &_game.snake.body {
             // println!("MATO");
             rectangle([1.0, 0.0, 0.0, 1.0], // red
@@ -193,6 +246,6 @@ fn render(_window: &mut PistonWindow, _event: &Event, _game: &mut Game) {
                 g,
             );
         }
+        _glyphs.factory.encoder.flush(device);
     });
-    
 }
