@@ -1,5 +1,3 @@
-use piston_window::*;
-
 #[derive(PartialEq)]
 pub enum Direction {
     Up,
@@ -16,8 +14,6 @@ pub struct Snake {
 impl Snake {
     pub fn move_forward(&mut self) {
         let mut head = self.body[0];
-        
-        println!("{:?}", head);
         match self.direction {
             Direction::Up => head.1 -= 1,
             Direction::Down => head.1 += 1, 
@@ -27,4 +23,4 @@ impl Snake {
         self.body.insert(0, head);
         self.body.pop();
     }
-} 
+}
