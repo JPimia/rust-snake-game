@@ -44,7 +44,7 @@ fn main() {
         if last_update.elapsed() >= update_interval {
             _game.snake.move_forward();
             _game.spawn_food();
-            _game.check_collusion();
+            _game.check_collision();
             last_update = std::time::Instant::now();
         }
         render(&mut _window, &e, &mut _game, &mut _glyphs);
@@ -95,22 +95,22 @@ fn render(_window: &mut PistonWindow, _event: &Event, _game: &mut Game, _glyphs:
         );
         
         // Draw snake
-        for (x, y) in &_game.snake.body {
+        _game.snake.body.iter().for_each(|(x, y)| {
             rectangle(SNAKE_COLOR,
                 [*x as f64 * GRID_SIZE, *y as f64 * GRID_SIZE, GRID_SIZE, GRID_SIZE],
                 c.transform,
                 g,
             );
-        }
+        });
 
         // Draw food
-        for (x, y) in &_game.food {
+        _game.food.iter().for_each(|(x, y)| {
             rectangle(FOOD_COLOR,
                 [*x as f64 * GRID_SIZE, *y as f64 * GRID_SIZE, GRID_SIZE, GRID_SIZE],
                 c.transform,
                 g,
             );
-        }
+        });
         _glyphs.factory.encoder.flush(device);
     });
 }
