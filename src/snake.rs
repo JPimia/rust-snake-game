@@ -4,7 +4,7 @@ pub enum Direction {
     Down,
     Right,
     Left,
-}    
+}
 
 pub struct Snake {
     pub body: Vec<(i32, i32)>,
@@ -13,14 +13,15 @@ pub struct Snake {
 
 impl Snake {
     pub fn move_forward(&mut self) {
-        let mut head = self.body[0];
-        match self.direction {
-            Direction::Up => head.1 -= 1,
-            Direction::Down => head.1 += 1, 
-            Direction::Right => head.0 += 1,
-            Direction::Left => head.0 -= 1,
-        }
-        self.body.insert(0, head);
+        let new_head = self.body.first()
+            .map(|&(x, y)| match self.direction {
+                Direction::Up => (x, y - 1),
+                Direction::Down => (x, y + 1),
+                Direction::Right => (x + 1, y),
+                Direction::Left => (x - 1, y),
+            }).unwrap();
+        
+        self.body.insert(0, new_head);
         self.body.pop();
     }
 }
